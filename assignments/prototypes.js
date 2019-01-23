@@ -40,8 +40,9 @@ function CharacterStats(hp, name, dimensions, createdAt) {
 }
 
 CharacterStats.prototype = Object.create(GameObject.prototype)
-CharacterStats.prototype.takeDamage = function () {
-  return `${this.name} took damage`
+CharacterStats.prototype.takeDamage = function (damage) {
+  this.healthPoints -= damage
+  return `${this.name} took ${damage} damage health decreased to ${this.healthPoints}`
 };
 
 /*
@@ -56,7 +57,6 @@ CharacterStats.prototype.takeDamage = function () {
 
 function Humanoid(charData) {
   CharacterStats.call(this, charData.healthPoints, charData.name, charData.dimensions, charData.createdAt)
-  // console.log(charData.healthPoints)
   this.team = charData.team
   this.weapons = charData.weapons
   this.language = charData.language
@@ -126,19 +126,103 @@ Humanoid.prototype.greet = function() {
     language: 'Elvish',
   });
 
-  console.log(mage.createdAt); // Today's date
-  console.log(archer.dimensions); // { length: 1, width: 2, height: 4 }
-  console.log(swordsman.healthPoints); // 15
-  console.log(mage.name); // Bruce
-  console.log(swordsman.team); // The Round Table
-  console.log(mage.weapons); // Staff of Shamalama
-  console.log(archer.language); // Elvish
-  console.log(archer.greet()); // Lilith offers a greeting in Elvish.
-  console.log(mage.takeDamage()); // Bruce took damage.
-  console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
+  // console.log(mage.createdAt); // Today's date
+  // console.log(archer.dimensions); // { length: 1, width: 2, height: 4 }
+  // console.log(swordsman.healthPoints); // 15
+  // console.log(mage.name); // Bruce
+  // console.log(swordsman.team); // The Round Table
+  // console.log(mage.weapons); // Staff of Shamalama
+  // console.log(archer.language); // Elvish
+  // console.log(archer.greet()); // Lilith offers a greeting in Elvish.
+  // console.log(mage.takeDamage(5)); // Bruce took damage.
+  // console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
 
 
   // Stretch task: 
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
   // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
   // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+  // Hero based on strength
+  function Hero(charData, strength){
+    Humanoid.call(this,charData)
+    this.strength = strength
+    this.damage = Math.random() * strength
+  }
+
+  Hero.prototype = Object.create(Humanoid.prototype)
+
+  // Villain based on high dmg
+  function Villain(charData, damage){
+    Humanoid.call(this,charData)
+    this.damage = damage
+    this.strength = Math.random() * damage
+  }
+
+  Villain.prototype = Object.create(Humanoid.prototype)
+
+  // fight setting
+  function City(){
+    // game loop
+    this.fight = (hero, villain) => {
+        while(hero.healthPoints > 0 && villain.healthPoints > 0){
+        let turn = Math.random()
+        if(turn > .5){
+          let dmg = villain.damage - hero.strength < 0 ? 0 : villain.damage - hero.strength
+          console.log(hero.takeDamage(dmg))
+        }else{
+          let dmg = hero.damage - villain.strength < 0 ? 0 : hero.damage - villain.strength
+          console.log(villain.takeDamage(dmg))
+        }
+      }
+      // declare winner
+      return hero.healthPoints > 0 ? `Hero ${hero.name} wins` : `Villain ${villain.name} wins`
+    }
+  }
+
+  
+  
+
+  const NewYork = new City()
+
+  const suppaBoi = new Hero(
+    {
+      createdAt: new Date(),
+      dimensions: {
+        length: 2,
+        width: 1,
+        height: 1,
+      },
+      healthPoints: 100,
+      name: 'suppaBoi',
+      team: 'Hero',
+      weapons: [
+        'smol hands',
+      ],
+      language: 'Common Tongue',
+    },
+    10
+  )
+
+  const sassyGurl = new Villain(
+    {
+      createdAt: new Date(),
+      dimensions: {
+        length: 2,
+        width: 1,
+        height: 1,
+      },
+      healthPoints: 100,
+      name: 'sassyGurl',
+      team: 'Villain',
+      weapons: [
+        'hair whips and flips', //when girls throw their hair to the back? dunno what thats called xD
+      ],
+      language: 'Common Tongue',
+    },
+    11
+  )
+
+  console.log(NewYork.fight(suppaBoi, sassyGurl))
+  
+  
